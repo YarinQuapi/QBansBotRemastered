@@ -30,7 +30,7 @@ public class GuildBanRemover {
     public void remove() {
         String sql = String.format("SELECT * FROM `bans` WHERE `timestamp`<\"%s\"", System.currentTimeMillis());
 
-        ResultSet rs = MySQL.get(sql);
+        ResultSet rs = MySQLUtils.get(sql);
 
         if (rs != null) {
             try {
@@ -44,7 +44,7 @@ public class GuildBanRemover {
 
                         QBansBot.getInstance().getJda().getGuildById(guildId).unban(userId).queue();
 
-                        MySQL.update(String.format("DELETE FROM `bans` WHERE `userId`=\"%s\" AND `guildId`=\"%s\"", userId, guildId));
+                        MySQLUtils.update(String.format("DELETE FROM `bans` WHERE `userId`=\"%s\" AND `guildId`=\"%s\"", userId, guildId));
                     } while (rs.next());
                 }
             } catch (SQLException throwables) {

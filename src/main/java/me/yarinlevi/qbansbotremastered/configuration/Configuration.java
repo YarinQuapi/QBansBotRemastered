@@ -133,7 +133,7 @@ public class Configuration {
      *
      * @throws Exception
      */
-    static void copyFile(InputStream in, File out) throws Exception {
+    private static void copyFile(InputStream in, File out) throws Exception {
         InputStream fis = in;
         FileOutputStream fos = new FileOutputStream(out);
         try {

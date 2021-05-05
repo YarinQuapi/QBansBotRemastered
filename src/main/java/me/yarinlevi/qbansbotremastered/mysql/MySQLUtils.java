@@ -2,6 +2,7 @@ package me.yarinlevi.qbansbotremastered.mysql;
 
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
+import me.yarinlevi.qbansbotremastered.QBansBot;
 import me.yarinlevi.qbansbotremastered.configuration.Configuration;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,10 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class MySQL {
-    @Getter private static Connection connection;
+public class MySQLUtils {
+    @Getter private final Connection connection;
 
-    public MySQL(Configuration config) {
+    public MySQLUtils(Configuration config) {
         String hostName = config.getString("mysql_host");
         String table = "bans";
         String database = config.getString("mysql_database");
@@ -46,10 +47,12 @@ public class MySQL {
 
         String sql = String.format("CREATE TABLE IF NOT EXISTS `%s` (`guildId` VARCHAR(18) NOT NULL, `userId` VARCHAR(18) NOT NULL, `staff` VARCHAR(18) NOT NULL, `timestamp` TEXT NOT NULL)", table);
 
+        Connection conn = null;
+
         System.out.println("Please await mysql hook...");
         try {
-            connection = dataSource.getConnection();
-            Statement statement = connection.createStatement();
+            conn = dataSource.getConnection();
+            Statement statement = conn.createStatement();
             {
                 statement.executeUpdate(sql);
                 System.out.println("Successfully connected to MySQL database!");
@@ -58,12 +61,14 @@ public class MySQL {
             throwables.printStackTrace();
             System.out.println("Something went horribly wrong while connecting to database!");
         }
+
+        this.connection = conn;
     }
 
     @Nullable
     public static ResultSet get(String query) {
         try {
-            return connection.prepareStatement(query).executeQuery();
+            return QBansBot.getInstance().getMysql().connection.prepareStatement(query).executeQuery();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -72,7 +77,7 @@ public class MySQL {
 
     public static int update(String query) {
         try {
-            return connection.prepareStatement(query).executeUpdate();
+            return QBansBot.getInstance().getMysql().connection.prepareStatement(query).executeUpdate();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -81,7 +86,7 @@ public class MySQL {
 
     public static boolean insert(String query) {
         try {
-            connection.prepareStatement(query).execute();
+            QBansBot.getInstance().getMysql().connection.prepareStatement(query).execute();
             return true;
         } catch (SQLException throwables) {
             throwables.printStackTrace();

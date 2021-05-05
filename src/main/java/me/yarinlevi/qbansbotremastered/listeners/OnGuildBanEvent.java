@@ -1,7 +1,7 @@
 package me.yarinlevi.qbansbotremastered.listeners;
 
 import me.yarinlevi.qbansbotremastered.QBansBot;
-import me.yarinlevi.qbansbotremastered.mysql.MySQL;
+import me.yarinlevi.qbansbotremastered.mysql.MySQLUtils;
 import me.yarinlevi.qbansbotremastered.utilities.StringUtils;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audit.ActionType;
@@ -13,8 +13,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Iterator;
 
 public class OnGuildBanEvent extends ListenerAdapter {
 
@@ -27,7 +25,6 @@ public class OnGuildBanEvent extends ListenerAdapter {
                 boolean validEntry = entry.getTargetId().equals(banEvent.getUser().getId()); // Is the  entry real?
                 String reason = validEntry ? entry.getReason() : "permanent ban"; // The reason for the ban
                 User executor = validEntry ? entry.getUser() : QBansBot.getInstance().getJda().getSelfUser(); // Who banned the user or if not found, the bot
-                String logId = validEntry ? entry.getId() : "BAN_EXCEPTION_INVALID_ID"; // Entry ID
 
                 if (reason != null) {
                     // Correctly splitting arguments
@@ -48,24 +45,11 @@ public class OnGuildBanEvent extends ListenerAdapter {
                         }
 
                         // Reason construction
-                        String[] rReason = new String[args.length - 1];
+                        StringBuilder constructedReason = new StringBuilder();
 
                         for (int i = 0; i < args.length; i++) {
                             if (i != 0) {
-                                rReason[i-1] = args[i];
-                            }
-                        }
-                        StringBuilder constructedReason = new StringBuilder();
-
-
-                        Iterator<String> stringIterator = Arrays.stream(rReason).iterator();
-
-                        while (stringIterator.hasNext()) {
-                            String str = stringIterator.next();
-                            constructedReason.append(str);
-
-                            if (stringIterator.hasNext()) {
-                                constructedReason.append(" ");
+                                constructedReason.append(args[i]).append(" ");
                             }
                         }
 
@@ -89,7 +73,7 @@ public class OnGuildBanEvent extends ListenerAdapter {
                                 duration.getTime());
 
                         new Thread(() -> {
-                            if (!MySQL.insert(sql)) {
+                            if (!MySQLUtils.insert(sql)) {
                                 messageChannel.sendMessage("ERROR! Something went wrong while adding ban to database! please contact the developer ASAP!").queue();
                             }
                         }).start();

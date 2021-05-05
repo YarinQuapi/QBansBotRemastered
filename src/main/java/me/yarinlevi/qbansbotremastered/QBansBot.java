@@ -5,7 +5,7 @@ import me.yarinlevi.qbansbotremastered.configuration.Configuration;
 import me.yarinlevi.qbansbotremastered.listeners.OnGuildBanEvent;
 import me.yarinlevi.qbansbotremastered.listeners.OnGuildUnbanEvent;
 import me.yarinlevi.qbansbotremastered.mysql.GuildBanRemover;
-import me.yarinlevi.qbansbotremastered.mysql.MySQL;
+import me.yarinlevi.qbansbotremastered.mysql.MySQLUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class QBansBot {
     @Getter private static QBansBot instance;
     @Getter private final JDA jda;
-    @Getter private final MySQL mysql;
+    @Getter private final MySQLUtils mysql;
     @Getter private final GuildBanRemover guildBanRemover;
 
     /**
@@ -27,12 +27,12 @@ public class QBansBot {
      */
     @Getter private final Map<String, Configuration> configurations = new HashMap<>();
 
-    public QBansBot(String[] args) throws LoginException {
+    public QBansBot() throws LoginException {
         instance = this;
 
         this.loadConfigs();
 
-        mysql = new MySQL(this.configurations.get("mysql"));
+        mysql = new MySQLUtils(this.configurations.get("mysql"));
 
         String token = configurations.get("qbot").getString("token");
 
@@ -50,7 +50,7 @@ public class QBansBot {
     }
 
 
-    void loadConfigs() {
+    private void loadConfigs() {
         Configuration config = Configuration.load("qbot.yml");
         configurations.put("qbot", config);
 

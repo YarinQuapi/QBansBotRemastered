@@ -1,0 +1,4 @@
+token: ${project.name}
+version: ${project.version}
+name: ${project.artifactId}
+config-id: 1

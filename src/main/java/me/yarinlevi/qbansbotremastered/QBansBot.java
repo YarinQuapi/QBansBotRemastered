@@ -3,6 +3,7 @@ package me.yarinlevi.qbansbotremastered;
 import lombok.Getter;
 import me.yarinlevi.qbansbotremastered.configuration.Configuration;
 import me.yarinlevi.qbansbotremastered.listeners.OnGuildBanEvent;
+import me.yarinlevi.qbansbotremastered.listeners.OnGuildLeaveEvent;
 import me.yarinlevi.qbansbotremastered.listeners.OnGuildUnbanEvent;
 import me.yarinlevi.qbansbotremastered.mysql.GuildBanRemover;
 import me.yarinlevi.qbansbotremastered.mysql.MySQLUtils;
@@ -28,7 +29,7 @@ public class QBansBot {
     @Getter private final Map<String, Configuration> configurations = new HashMap<>();
 
     public QBansBot() throws LoginException {
-        instance = this;
+        QBansBot.instance = this;
 
         this.loadConfigs();
 
@@ -41,7 +42,8 @@ public class QBansBot {
                 .setStatus(OnlineStatus.ONLINE)
                 .setActivity(Activity.of(Activity.ActivityType.DEFAULT, "QBansOS v" + configurations.get("qbot").getString("version")))
                 .addEventListeners(new OnGuildBanEvent())
-                .addEventListeners(new OnGuildUnbanEvent());
+                .addEventListeners(new OnGuildUnbanEvent())
+                .addEventListeners(new OnGuildLeaveEvent());
 
 
         jda = jdaBuilder.build();

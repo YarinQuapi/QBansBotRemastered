@@ -85,15 +85,16 @@ public class StringUtils {
     }
 
     public static String[] split(String reason) {
+        String reason1 = reason;
         int i = 0;
-        for (char c : reason.toCharArray())
+        for (char c : reason1.toCharArray())
             if (c == ' ')
                 i++;
         String[] args = new String[i + 1];
         i = 0;
         String word = "";
-        reason += " ";
-        for (char c : reason.toCharArray())
+        reason1 += " ";
+        for (char c : reason1.toCharArray())
         {
             if (c != ' ')
                 word += c;

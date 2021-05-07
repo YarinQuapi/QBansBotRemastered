@@ -13,9 +13,6 @@ public class StringUtils {
 
     public static long parseDuration(final String durationStr) throws IllegalArgumentException {
         final Matcher m = timePattern.matcher(durationStr);
-        int years = 0;
-        int months = 0;
-        int weeks = 0;
         int days = 0;
         int hours = 0;
         int minutes = 0;
@@ -32,15 +29,6 @@ public class StringUtils {
                 }
             }
             if (found) {
-                if (m.group(1) != null && !m.group(1).isEmpty()) {
-                    years = Integer.parseInt(m.group(1));
-                }
-                if (m.group(2) != null && !m.group(2).isEmpty()) {
-                    months = Integer.parseInt(m.group(2));
-                }
-                if (m.group(3) != null && !m.group(3).isEmpty()) {
-                    weeks = Integer.parseInt(m.group(3));
-                }
                 if (m.group(4) != null && !m.group(4).isEmpty()) {
                     days = Integer.parseInt(m.group(4));
                 }
@@ -60,15 +48,6 @@ public class StringUtils {
             System.out.println("Invalid duration");
         }
         final Calendar c = new GregorianCalendar();
-        if (years > 0) {
-            c.add(Calendar.YEAR, years);
-        }
-        if (months > 0) {
-            c.add(Calendar.MONTH, months);
-        }
-        if (weeks > 0) {
-            c.add(Calendar.WEEK_OF_YEAR, weeks);
-        }
         if (days > 0) {
             c.add(Calendar.DAY_OF_MONTH, days);
         }

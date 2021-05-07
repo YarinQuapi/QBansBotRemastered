@@ -46,6 +46,8 @@ public class MySQLUtils {
         dataSource.addDataSourceProperty("characterEncoding", "UTF-8");
 
         String sql = String.format("CREATE TABLE IF NOT EXISTS `%s` (`guildId` VARCHAR(18) NOT NULL, `userId` VARCHAR(18) NOT NULL, `staff` VARCHAR(18) NOT NULL, `timestamp` TEXT NOT NULL)", table);
+        String enabled_servers_sql = "CREATE TABLE IF NOT EXISTS `enabled_servers` (`guildId` VARCHAR(18) NOT NULL)";
+
 
         Connection conn = null;
 
@@ -55,6 +57,7 @@ public class MySQLUtils {
             Statement statement = conn.createStatement();
             {
                 statement.executeUpdate(sql);
+                statement.executeUpdate(enabled_servers_sql);
                 System.out.println("Successfully connected to MySQL database!");
             }
         } catch (SQLException throwables) {

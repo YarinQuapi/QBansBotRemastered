@@ -6,6 +6,9 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author YarinQuapi
+ */
 public class Configuration {
     private Yaml yaml = new Yaml();
     private File configFile = null;

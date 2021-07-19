@@ -5,6 +5,9 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @author YarinQuapi
+ */
 public class OnGuildLeaveEvent extends ListenerAdapter {
     public void onGuildLeave(@NotNull GuildLeaveEvent leaveEvent) {
         new Thread(() -> MySQLUtils.update(String.format("DELETE * FROM `bans` WHERE `guildId`=\"%s\"", leaveEvent.getGuild().getIdLong()))).start();

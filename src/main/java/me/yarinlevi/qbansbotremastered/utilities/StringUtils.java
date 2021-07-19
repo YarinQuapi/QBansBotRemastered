@@ -1,17 +1,22 @@
 package me.yarinlevi.qbansbotremastered.utilities;
 
+import me.yarinlevi.qbansbotremastered.exceptions.DurationNotDetectedException;
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @author YarinQuapi
+ */
 public class StringUtils {
     private final static Pattern timePattern = Pattern.compile("(?:([0-9]+)\\s*y[a-z]*[,\\s]*)?"
             + "(?:([0-9]+)\\s*mo[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*w[a-z]*[,\\s]*)?"
             + "(?:([0-9]+)\\s*d[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*h[a-z]*[,\\s]*)?" + "(?:([0-9]+)\\s*m[a-z]*[,\\s]*)?"
             + "(?:([0-9]+)\\s*(?:s[a-z]*)?)?", Pattern.CASE_INSENSITIVE);
 
-    public static long parseDuration(final String durationStr) throws IllegalArgumentException {
+    public static long parseDuration(final String durationStr) throws IllegalArgumentException, DurationNotDetectedException {
         final Matcher m = timePattern.matcher(durationStr);
         int days = 0;
         int hours = 0;
@@ -45,7 +50,7 @@ public class StringUtils {
             }
         }
         if (!found) {
-            System.out.println("Invalid duration");
+            throw new DurationNotDetectedException("No duration was detected.");
         }
         final Calendar c = new GregorianCalendar();
         if (days > 0) {

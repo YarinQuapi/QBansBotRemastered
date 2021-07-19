@@ -1,8 +1,10 @@
 package me.yarinlevi.qbansbotremastered.listeners;
 
 import me.yarinlevi.qbansbotremastered.QBansBot;
+import me.yarinlevi.qbansbotremastered.exceptions.DurationNotDetectedException;
 import me.yarinlevi.qbansbotremastered.mysql.MySQLUtils;
 import me.yarinlevi.qbansbotremastered.utilities.StringUtils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.audit.ActionType;
 import net.dv8tion.jda.api.audit.AuditLogEntry;
@@ -12,11 +14,16 @@ import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+/**
+ * @author YarinQuapi
+ */
 public class OnGuildBanEvent extends ListenerAdapter {
+    long messageId;
 
     @Override
     public void onGuildBan(@NotNull GuildBanEvent banEvent) {
@@ -47,7 +54,14 @@ public class OnGuildBanEvent extends ListenerAdapter {
 
                         if (args.length > 0) {
                             // Parsing ban duration
-                            Timestamp duration = new Timestamp(StringUtils.parseDuration(args[0]));
+                            Timestamp duration = null;
+                            boolean perm = false;
+
+                            try {
+                                duration = new Timestamp(StringUtils.parseDuration(args[0]));
+                            } catch (DurationNotDetectedException e) {
+                                perm = true;
+                            }
 
                             MessageChannel messageChannel;
                             if (banEvent.getGuild().getTextChannels().stream().anyMatch(x -> x.getName().equals("qbansbot_logs"))) {
@@ -68,33 +82,59 @@ public class OnGuildBanEvent extends ListenerAdapter {
                                 }
                             }
 
-                            messageChannel.sendMessage(String.format("%s#%s banned %s#%s for %s",
-                                    executor.getName(),
-                                    executor.getDiscriminator(),
-                                    banEvent.getUser().getName(),
-                                    banEvent.getUser().getDiscriminator(),
-                                    constructedReason))
-                                    .queue();
-
                             long executorUserId = executor.getIdLong();
                             long bannedUserId = banEvent.getUser().getIdLong();
 
-                            // SQL handling
-                            //Date date = new Date(timestamp.getTime());
-                            String sql = String.format("INSERT INTO `bans`(`guildId`, `userId`, `staff`, `timestamp`) VALUES (\"%s\", \"%s\",\"%s\",\"%s\")",
-                                    banEvent.getGuild().getIdLong(),
-                                    bannedUserId,
-                                    executorUserId,
-                                    duration.getTime());
 
-                            new Thread(() -> {
-                                if (!MySQLUtils.insert(sql)) {
-                                    messageChannel.sendMessage("ERROR! Something went wrong while adding ban to database! please contact the developer ASAP!").queue();
-                                }
-                            }).start();
+                            EmbedBuilder embedBuilder = new EmbedBuilder();
+
+                            embedBuilder.setColor(Color.cyan);
+
+                            embedBuilder.addField("Banned user", banEvent.getUser().getName() + "#" + banEvent.getUser().getDiscriminator() + ", " + bannedUserId, false);
+                            embedBuilder.addField("Reason", constructedReason.toString(), true);
+
+                            if (!perm) {
+                                embedBuilder.addField("Duration", duration.toString(), true);
+                            } else {
+                                embedBuilder.addField("Duration", "Permanent ban", true);
+                            }
+
+                            embedBuilder.addField("Banned by", executor.getName() + "#" + executor.getDiscriminator() + ", " + executorUserId, false);
+
+                            embedBuilder.setFooter(new Timestamp(System.currentTimeMillis()) + ", QBanOS v" + QBansBot.getInstance().getVersion());
+
+
+                            // final temp variables
+                            final Timestamp sDuration = duration;
+                            final boolean sPerm = perm;
+                            final String sReason = constructedReason.toString();
+
+                            messageChannel.sendMessage(embedBuilder.build())
+                                    .queue(message2 -> {
+                                        message2.addReaction("U+274C").queue();
+                                        messageId = message2.getIdLong();
+
+                                        if (!sPerm) {
+                                            String sql = String.format("INSERT INTO `bans`(`guildId`, `userId`, `staff`, `timestamp`, `messageId`, `reason`) VALUES (\"%s\", \"%s\",\"%s\",\"%s\", \"%s\", \"%s\")",
+                                                    banEvent.getGuild().getIdLong(),
+                                                    bannedUserId,
+                                                    executorUserId,
+                                                    sDuration.getTime(),
+                                                    messageId,
+                                                    sReason);
+
+                                            new Thread(() -> {
+                                                if (!MySQLUtils.insert(sql)) {
+                                                    messageChannel.sendMessage("ERROR! Something went wrong while adding ban to database! please contact the developer ASAP!").queue();
+                                                }
+                                            }).start();
+                                        }
+                                    });
                         }
                     }
                 });
+            } else {
+                // Tell server he is unauthorized
             }
         }
     }

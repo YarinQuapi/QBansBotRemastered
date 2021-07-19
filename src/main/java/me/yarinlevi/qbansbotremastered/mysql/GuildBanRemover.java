@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * @author YarinQuapi
+ */
 public class GuildBanRemover {
     private final Thread removerThread;
 
@@ -18,7 +21,7 @@ public class GuildBanRemover {
                 public void run() {
                     remove();
                 }
-            }, (long) 0, (long) 60*1000);
+            }, 0, (long) 60*1000);
         });
 
         removerThread.start();
@@ -40,11 +43,14 @@ public class GuildBanRemover {
                     do {
                         String userId = rs.getString("userId");
                         long guildId = rs.getLong("guildId");
-
+                        long messageId = rs.getLong("messageId");
 
                         QBansBot.getInstance().getJda().getGuildById(guildId).unban(userId).queue();
 
                         MySQLUtils.update(String.format("DELETE FROM `bans` WHERE `userId`=\"%s\" AND `guildId`=\"%s\"", userId, guildId));
+
+                        QBansBot.getInstance().getJda().getGuildById(guildId).getTextChannels().stream().filter(x -> x.getName().equalsIgnoreCase("qbansbot_logs")).findFirst().get();
+
                     } while (rs.next());
                 }
             } catch (SQLException throwables) {

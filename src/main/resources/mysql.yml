@@ -2,6 +2,6 @@ config-id: 2
 
 mysql_host: ""
 mysql_database: "QBans"
-mysql_port: 30208
+mysql_port: 3306
 mysql_user: ""
 mysql_pass: ""

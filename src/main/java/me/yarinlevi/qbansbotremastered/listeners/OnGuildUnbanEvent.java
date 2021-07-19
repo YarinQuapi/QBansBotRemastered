@@ -4,6 +4,9 @@ import me.yarinlevi.qbansbotremastered.mysql.MySQLUtils;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+/**
+ * @author YarinQuapi
+ */
 public class OnGuildUnbanEvent extends ListenerAdapter {
     public void onGuildUnban(GuildUnbanEvent unbanEvent) {
         if (!unbanEvent.getUser().isBot()) {

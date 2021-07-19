@@ -11,26 +11,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * @author YarinQuapi
+ */
 public class MySQLUtils {
     @Getter private final Connection connection;
 
     public MySQLUtils(Configuration config) {
         String hostName = config.getString("mysql_host");
-        String table = "bans";
         String database = config.getString("mysql_database");
         int port = config.getInt("mysql_port");
         String user = config.getString("mysql_user");
         String pass = config.getString("mysql_pass");
 
-
-        /*
-        String hostName = "38.17.53.116";
-        String table = "bans";
-        String database = "QBansTest";
-        int port = 30208;
-        String user = "QBansBot";
-        String pass = "PASSWORD123";
-         */
 
         HikariDataSource dataSource = new HikariDataSource();
 
@@ -45,7 +38,8 @@ public class MySQLUtils {
         dataSource.addDataSourceProperty("useUnicode", true);
         dataSource.addDataSourceProperty("characterEncoding", "UTF-8");
 
-        String sql = String.format("CREATE TABLE IF NOT EXISTS `%s` (`guildId` VARCHAR(18) NOT NULL, `userId` VARCHAR(18) NOT NULL, `staff` VARCHAR(18) NOT NULL, `timestamp` TEXT NOT NULL)", table);
+
+        String sql = "CREATE TABLE IF NOT EXISTS `bans` (`guildId` VARCHAR(18) NOT NULL, `userId` VARCHAR(18) NOT NULL, `messageId` VARCHAR(18) NOT NULL, `staff` VARCHAR(18) NOT NULL, `timestamp` TEXT NOT NULL, `reason` TEXT)";
         String enabled_servers_sql = "CREATE TABLE IF NOT EXISTS `enabled_servers` (`guildId` VARCHAR(18) NOT NULL)";
 
 

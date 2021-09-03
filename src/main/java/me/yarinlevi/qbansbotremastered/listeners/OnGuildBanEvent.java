@@ -18,6 +18,8 @@ import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @author YarinQuapi
@@ -85,7 +87,6 @@ public class OnGuildBanEvent extends ListenerAdapter {
                             long executorUserId = executor.getIdLong();
                             long bannedUserId = banEvent.getUser().getIdLong();
 
-
                             EmbedBuilder embedBuilder = new EmbedBuilder();
 
                             embedBuilder.setColor(Color.cyan);
@@ -114,21 +115,28 @@ public class OnGuildBanEvent extends ListenerAdapter {
                                         message2.addReaction("U+274C").queue();
                                         messageId = message2.getIdLong();
 
-                                        if (!sPerm) {
-                                            String sql = String.format("INSERT INTO `bans`(`guildId`, `userId`, `staff`, `timestamp`, `messageId`, `reason`) VALUES (\"%s\", \"%s\",\"%s\",\"%s\", \"%s\", \"%s\")",
-                                                    banEvent.getGuild().getIdLong(),
-                                                    bannedUserId,
-                                                    executorUserId,
-                                                    sDuration.getTime(),
-                                                    messageId,
-                                                    sReason);
+                                        Timer timer = new Timer();
 
-                                            new Thread(() -> {
-                                                if (!MySQLUtils.insert(sql)) {
-                                                    messageChannel.sendMessage("ERROR! Something went wrong while adding ban to database! please contact the developer ASAP!").queue();
+                                        timer.schedule(new TimerTask() {
+                                            @Override
+                                            public void run() {
+                                                if (!sPerm) {
+                                                    String sql = String.format("INSERT INTO `bans`(`guildId`, `userId`, `staff`, `timestamp`, `messageId`, `reason`) VALUES (\"%s\", \"%s\",\"%s\",\"%s\", \"%s\", \"%s\")",
+                                                            banEvent.getGuild().getIdLong(),
+                                                            bannedUserId,
+                                                            executorUserId,
+                                                            sDuration.getTime(),
+                                                            messageId,
+                                                            sReason);
+
+                                                    new Thread(() -> {
+                                                        if (!MySQLUtils.insert(sql)) {
+                                                            messageChannel.sendMessage("ERROR! Something went wrong while adding ban to database! please contact the developer ASAP!").queue();
+                                                        }
+                                                    }).start();
                                                 }
-                                            }).start();
-                                        }
+                                            }
+                                        }, 70L);
                                     });
                         }
                     }

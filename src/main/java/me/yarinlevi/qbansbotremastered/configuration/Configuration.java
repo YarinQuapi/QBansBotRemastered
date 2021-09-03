@@ -14,7 +14,6 @@ public class Configuration {
     private File configFile = null;
     private Map<String, Object> result = new HashMap<>();
 
-
     public static Configuration load(String filePath) {
         return new Configuration(filePath);
     }

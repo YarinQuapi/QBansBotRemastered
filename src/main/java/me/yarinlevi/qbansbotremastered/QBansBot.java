@@ -31,14 +31,13 @@ public class QBansBot {
     @Getter @Setter private GuildBanRemover guildBanRemover;
     @Getter private final String version;
 
-
     /**
      *  Configurations *
      */
     @Getter private final Map<String, Configuration> configurations = new HashMap<>();
 
     public QBansBot() throws LoginException {
-        QBansBot.instance = this;
+        instance = this;
 
         this.loadConfigs();
 
@@ -56,7 +55,6 @@ public class QBansBot {
                 .addEventListeners(new OnGuildUnbanEvent())
                 .addEventListeners(new OnGuildLeaveEvent())
                 .addEventListeners(new OnReactionEvent());
-
 
         jda = jdaBuilder.build();
 
